@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project Index</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 40px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+th { background: #f2f2f2; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+#status { margin-bottom: 15px; }
+</style>
+</head>
+<body>
+<h1>Project Index</h1>
+<div id="status">Loading projects...</div>
+<table>
+<thead>
+<tr><th>Project Name</th><th>Path</th></tr>
+</thead>
+<tbody id="projects"></tbody>
+</table>
+
+<script>
+const escapeHTML = (str) => String(str).replace(/[&<>"']/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;'
+}[c]));
+
+fetch('./projects.json')
+  .then(response => {
+    if (!response.ok) throw new Error('Failed to load projects.json');
+    return response.json();
+  })
+  .then(projects => {
+    const tbody = document.getElementById('projects');
+    const status = document.getElementById('status');
+    if (!projects.length) {
+      status.textContent = 'No projects found.';
+      return;
+    }
+    status.textContent = '';
+    tbody.innerHTML = projects.map(project => `
+      <tr>
+        <td><a href="${escapeHTML(project.path)}/">${escapeHTML(project.name)}</a></td>
+        <td>${escapeHTML(project.path)}</td>
+      </tr>
+    `).join('');
+  })
+  .catch(error => {
+    document.getElementById('status').textContent = 'Error: ' + error.message;
+  });
+</script>
+</body>
+</html>
